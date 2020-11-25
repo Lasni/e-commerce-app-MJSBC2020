@@ -4,9 +4,11 @@ const usersRepo = require("../../repositories/users");
 const signupTemplate = require("../../views/admin/auth/signup");
 const signinTemplate = require("../../views/admin/auth/signin");
 const {
-  requireEmail,
-  requirePassword,
-  requirePasswordConfirmation,
+  requireEmailSignUp,
+  requirePasswordSignUp,
+  requirePasswordConfirmationSignUp,
+  requireEmailSignIn,
+  requirePasswordSignIn,
 } = require("./validators");
 
 const router = express.Router();
@@ -18,7 +20,11 @@ router.get("/signup", (req, res) => {
 
 router.post(
   "/signup",
-  [requireEmail, requirePassword, requirePasswordConfirmation],
+  [
+    requireEmailSignUp,
+    requirePasswordSignUp,
+    requirePasswordConfirmationSignUp,
+  ],
   async (req, res) => {
     const errors = validationResult(req);
     // console.log(errors)
@@ -27,7 +33,7 @@ router.post(
     }
     const { email, password } = req.body;
     // Create a user in our user repo
-    const user = await usersRepo.createUser({ email, password });
+    const user = await usersRepo.create({ email, password });
     // Store the id of that user inside the user's cookie
     req.session.userId = user.id; // added by cookie-session
     res.send("Account created");
@@ -36,27 +42,24 @@ router.post(
 
 // SIGN IN
 router.get("/signin", (req, res) => {
-  res.send(signinTemplate());
+  res.send(signinTemplate({}));
 });
 
-router.post("/signin", async (req, res) => {
-  const { email, password } = req.body;
-  const user = await usersRepo.getOneUserBy({ email });
-  if (!user) {
-    return res.send(`Email ${email} not found`);
-  }
+router.post(
+  "/signin",
+  [requireEmailSignIn, requirePasswordSignIn],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.send(signinTemplate({ errors }));
+    }
 
-  const validPassword = await usersRepo.comparePasswords(
-    user.password,
-    password
-  );
-  if (!validPassword) {
-    return res.send("Invalid password");
+    const { email } = req.body;
+    const user = await usersRepo.getOneBy({ email });
+    req.session.userId = user.id;
+    res.send("You are signed in");
   }
-
-  req.session.userId = user.id;
-  res.send("You are signed in");
-});
+);
 
 // SIGN OUT
 router.get("/signout", (req, res) => {
