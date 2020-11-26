@@ -3,8 +3,15 @@ const usersRepo = require("../../repositories/users");
 
 module.exports = {
   // PRODUCTS
-  requireTitleNew: check("title").trim().isLength({ min: 5, max: 40 }),
-  requirePriceNew: check("price").trim().toFloat().isFloat({ min: 1 }),
+  requireTitleNew: check("title")
+    .trim()
+    .isLength({ min: 5, max: 40 })
+    .withMessage("Must be between 5 and 40 characters"),
+  requirePriceNew: check("price")
+    .trim()
+    .toFloat()
+    .isFloat({ min: 1 })
+    .withMessage("Must be a number greater than 0"),
 
   // USERS
   requireEmailSignUp: check("email")
@@ -31,6 +38,8 @@ module.exports = {
       // Check if passwords match
       if (passwordConfirmation !== req.body.password) {
         throw new Error("Passwords must match!!");
+      } else {
+        return true;
       }
     }),
   requireEmailSignIn: check("email")
