@@ -3,11 +3,11 @@ const usersRepo = require("../../repositories/users");
 
 module.exports = {
   // PRODUCTS
-  requireTitleNew: check("title")
+  requireTitle: check("title")
     .trim()
     .isLength({ min: 5, max: 40 })
     .withMessage("Must be between 5 and 40 characters"),
-  requirePriceNew: check("price")
+  requirePrice: check("price")
     .trim()
     .toFloat()
     .isFloat({ min: 1 })
