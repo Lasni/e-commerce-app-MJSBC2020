@@ -24,5 +24,15 @@
     "express-validator": "^6.6.1",
     "multer": "^1.4.2",
     "nodemon": "^2.0.6"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "/public",
+      "package.json",
+      "nodemon.json",
+      "carts.json",
+      "products.json",
+      "users.json"
+    ]
   }
 }
